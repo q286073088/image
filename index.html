@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>清图工具</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">本地批量处理</p>
+          <h1>清图工具</h1>
+        </div>
+        <div class="totals" aria-live="polite">
+          <span><strong>不上传</strong> 图片</span>
+          <span><strong id="fileCount">0</strong> 张</span>
+          <span><strong id="sizeDelta">0 KB</strong> 变化</span>
+        </div>
+      </header>
+
+      <nav class="mode-nav" aria-label="图片工具">
+        <button class="is-active" type="button" data-mode="compress">图片压缩</button>
+        <button type="button" data-mode="remove-bg">图片去背景</button>
+        <button type="button" data-mode="watermark">加水印</button>
+      </nav>
+
+      <section class="workspace">
+        <aside class="panel controls">
+          <label class="dropzone" id="dropzone">
+            <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+            <span class="drop-title">拖入图片</span>
+            <span class="drop-subtitle">或点击选择，建议单批 50 张以内</span>
+          </label>
+
+          <section class="mode-panel is-active" data-panel="compress">
+            <div class="field">
+              <label for="compressFormat">导出格式</label>
+              <select id="compressFormat">
+                <option value="image/webp">WebP</option>
+                <option value="image/jpeg">JPG</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="field-row">
+                <label for="compressQuality">清晰度</label>
+                <output id="compressQualityValue" for="compressQuality">86</output>
+              </div>
+              <input id="compressQuality" type="range" min="60" max="96" value="86" />
+            </div>
+
+            <div class="field">
+              <label for="compressMaxEdge">最大边长</label>
+              <input id="compressMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
+            </div>
+          </section>
+
+          <section class="mode-panel" data-panel="remove-bg">
+            <div class="field">
+              <label for="bgFormat">导出格式</label>
+              <select id="bgFormat">
+                <option value="image/png">PNG</option>
+                <option value="image/webp">WebP</option>
+                <option value="image/jpeg">JPG</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="field-row">
+                <label for="bgTolerance">背景容差</label>
+                <output id="bgToleranceValue" for="bgTolerance">36</output>
+              </div>
+              <input id="bgTolerance" type="range" min="12" max="110" value="36" />
+            </div>
+
+            <div class="field">
+              <label for="bgMaxEdge">最大边长</label>
+              <input id="bgMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
+            </div>
+          </section>
+
+          <section class="mode-panel" data-panel="watermark">
+            <div class="field">
+              <label for="watermarkText">水印文字</label>
+              <input id="watermarkText" type="text" maxlength="40" placeholder="例如 品牌名" />
+            </div>
+
+            <div class="split">
+              <div class="field compact">
+                <label for="watermarkFormat">导出格式</label>
+                <select id="watermarkFormat">
+                  <option value="image/webp">WebP</option>
+                  <option value="image/jpeg">JPG</option>
+                  <option value="image/png">PNG</option>
+                </select>
+              </div>
+              <div class="field compact">
+                <label for="watermarkColor">颜色</label>
+                <input id="watermarkColor" type="color" value="#ffffff" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="watermarkPosition">位置</label>
+              <select id="watermarkPosition">
+                <option value="bottom-right">右下</option>
+                <option value="bottom-left">左下</option>
+                <option value="top-right">右上</option>
+                <option value="top-left">左上</option>
+                <option value="center">居中</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="field-row">
+                <label for="watermarkOpacity">透明度</label>
+                <output id="watermarkOpacityValue" for="watermarkOpacity">55</output>
+              </div>
+              <input id="watermarkOpacity" type="range" min="15" max="90" value="55" />
+            </div>
+
+            <div class="field">
+              <div class="field-row">
+                <label for="watermarkSize">大小</label>
+                <output id="watermarkSizeValue" for="watermarkSize">5</output>
+              </div>
+              <input id="watermarkSize" type="range" min="3" max="12" value="5" />
+            </div>
+
+            <div class="field">
+              <label for="watermarkMaxEdge">最大边长</label>
+              <input id="watermarkMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
+            </div>
+          </section>
+
+          <div class="actions">
+            <button class="primary" id="previewBtn" type="button" disabled>预览效果</button>
+            <button id="applyBtn" type="button" disabled>应用当前</button>
+            <button id="batchBtn" type="button" disabled>批量应用</button>
+            <button id="undoBtn" type="button" disabled>撤销当前</button>
+          </div>
+
+          <div class="actions secondary-actions">
+            <button id="downloadCurrentBtn" type="button" disabled>下载当前</button>
+            <button id="downloadAllBtn" type="button" disabled>下载 ZIP</button>
+            <button class="ghost" id="clearBtn" type="button" disabled>清空</button>
+          </div>
+        </aside>
+
+        <section class="panel result-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow" id="modeEyebrow">图片压缩</p>
+              <h2 id="modeTitle">先预览，再应用</h2>
+            </div>
+            <p id="batchStatus" class="status-text">等待选择图片</p>
+          </div>
+
+          <div class="compare">
+            <div class="preview-card">
+              <div class="preview-label">
+                <span>当前图片</span>
+                <strong id="currentSize">0 KB</strong>
+              </div>
+              <div class="preview" id="currentPreview">
+                <div class="preview-empty">选择图片后显示</div>
+              </div>
+            </div>
+
+            <div class="preview-card">
+              <div class="preview-label">
+                <span>效果预览</span>
+                <strong id="previewSize">未生成</strong>
+              </div>
+              <div class="preview" id="effectPreview">
+                <div class="preview-empty">点击预览效果</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="queue" id="queue" aria-live="polite"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js?v=20260708-mode-history"></script>
+  </body>
+</html>
