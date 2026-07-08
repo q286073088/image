@@ -4,16 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>图片处理</title>
-    <link rel="stylesheet" href="./styles.css?v=20260708-resize-mode" />
+    <link rel="stylesheet" href="./styles.css?v=20260708-removebg-off" />
   </head>
   <body>
     <main class="app">
       <nav class="mode-nav" aria-label="图片工具">
         <button class="mode-tab is-active" type="button" data-mode="compress">
           <span class="mode-tab-title">图片压缩</span>
-        </button>
-        <button class="mode-tab is-hidden" type="button" data-mode="remove-bg">
-          <span class="mode-tab-title">去背景</span>
         </button>
         <button class="mode-tab" type="button" data-mode="watermark">
           <span class="mode-tab-title">加水印</span>
@@ -68,39 +65,6 @@
 
             <div class="mode-actions">
               <button class="primary" id="compressRunBtn" type="button" disabled>开始压缩</button>
-            </div>
-          </section>
-
-          <section class="mode-screen is-hidden" data-screen="remove-bg">
-            <div class="mode-screen-head">
-              <h3>主体提取</h3>
-            </div>
-            <div class="field">
-              <label for="bgFormat">导出格式</label>
-              <select id="bgFormat">
-                <option value="image/png">PNG</option>
-                <option value="image/webp">WebP</option>
-                <option value="image/jpeg">JPG</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <div class="field-row">
-                <label for="bgTolerance">背景容差</label>
-                <output id="bgToleranceValue" for="bgTolerance">36</output>
-              </div>
-              <input id="bgTolerance" type="range" min="12" max="110" value="36" />
-            </div>
-
-            <div class="field">
-              <label for="bgMaxEdge">最大边长</label>
-              <input id="bgMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
-            </div>
-
-            <div class="mode-actions">
-              <button class="primary" id="removeBgApplyBtn" type="button" disabled>去背景当前</button>
-              <button id="removeBgBatchBtn" type="button" disabled>批量去背景</button>
-              <button id="removeBgUndoBtn" type="button" disabled>撤销当前</button>
             </div>
           </section>
 
@@ -230,6 +194,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=20260708-resize-mode"></script>
+    <script src="./app.js?v=20260708-removebg-off"></script>
   </body>
 </html>

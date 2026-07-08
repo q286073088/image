@@ -3,10 +3,6 @@ const modeMeta = {
     label: "压缩",
     undo: false,
   },
-  "remove-bg": {
-    label: "去背景",
-    undo: true,
-  },
   watermark: {
     label: "水印",
     undo: true,
@@ -41,10 +37,6 @@ const els = {
   compressQuality: document.querySelector("#compressQuality"),
   compressQualityValue: document.querySelector("#compressQualityValue"),
   compressMaxEdge: document.querySelector("#compressMaxEdge"),
-  bgFormat: document.querySelector("#bgFormat"),
-  bgTolerance: document.querySelector("#bgTolerance"),
-  bgToleranceValue: document.querySelector("#bgToleranceValue"),
-  bgMaxEdge: document.querySelector("#bgMaxEdge"),
   watermarkText: document.querySelector("#watermarkText"),
   watermarkFormat: document.querySelector("#watermarkFormat"),
   watermarkColor: document.querySelector("#watermarkColor"),
@@ -62,9 +54,6 @@ const els = {
   resizeValue: document.querySelector("#resizeValue"),
   resizeHint: document.querySelector("#resizeHint"),
   compressRunBtn: document.querySelector("#compressRunBtn"),
-  removeBgApplyBtn: document.querySelector("#removeBgApplyBtn"),
-  removeBgBatchBtn: document.querySelector("#removeBgBatchBtn"),
-  removeBgUndoBtn: document.querySelector("#removeBgUndoBtn"),
   watermarkApplyBtn: document.querySelector("#watermarkApplyBtn"),
   watermarkBatchBtn: document.querySelector("#watermarkBatchBtn"),
   watermarkUndoBtn: document.querySelector("#watermarkUndoBtn"),
@@ -89,7 +78,6 @@ function bindEvents() {
   });
 
   bindRange(els.compressQuality, els.compressQualityValue);
-  bindRange(els.bgTolerance, els.bgToleranceValue);
   bindRange(els.watermarkOpacity, els.watermarkOpacityValue);
   bindRange(els.watermarkSize, els.watermarkSizeValue);
 
@@ -97,9 +85,6 @@ function bindEvents() {
     els.compressFormat,
     els.compressQuality,
     els.compressMaxEdge,
-    els.bgFormat,
-    els.bgTolerance,
-    els.bgMaxEdge,
     els.watermarkText,
     els.watermarkFormat,
     els.watermarkColor,
@@ -143,9 +128,6 @@ function bindEvents() {
   });
 
   els.compressRunBtn.addEventListener("click", () => runMode("compress"));
-  els.removeBgApplyBtn.addEventListener("click", () => applySelected("remove-bg"));
-  els.removeBgBatchBtn.addEventListener("click", () => batchApply("remove-bg"));
-  els.removeBgUndoBtn.addEventListener("click", () => undoSelected("remove-bg"));
   els.watermarkApplyBtn.addEventListener("click", () => applySelected("watermark"));
   els.watermarkBatchBtn.addEventListener("click", () => batchApply("watermark"));
   els.watermarkUndoBtn.addEventListener("click", () => undoSelected("watermark"));
@@ -343,10 +325,6 @@ async function processVersion(version, mode) {
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(image, 0, 0, width, height);
 
-  if (mode === "remove-bg") {
-    removeBackground(ctx, width, height, settings.tolerance);
-  }
-
   if (mode === "watermark") {
     drawWatermark(ctx, width, height, settings);
   }
@@ -369,15 +347,6 @@ function readSettings(mode, version) {
       mime: els.compressFormat.value,
       quality: Number(els.compressQuality.value) / 100,
       maxEdge: numberOrEmpty(els.compressMaxEdge.value),
-    };
-  }
-
-  if (mode === "remove-bg") {
-    return {
-      mime: els.bgFormat.value,
-      quality: 0.92,
-      maxEdge: numberOrEmpty(els.bgMaxEdge.value),
-      tolerance: Number(els.bgTolerance.value),
     };
   }
 
@@ -447,54 +416,6 @@ function resizedSize(width, height, settings) {
   return {
     width: Math.max(1, Math.round(width * scale)),
     height: Math.max(1, Math.round(height * scale)),
-  };
-}
-
-function removeBackground(ctx, width, height, tolerance) {
-  const imageData = ctx.getImageData(0, 0, width, height);
-  const data = imageData.data;
-  const background = sampleBackground(data, width, height);
-  const fade = 30;
-
-  for (let i = 0; i < data.length; i += 4) {
-    if (data[i + 3] === 0) continue;
-
-    const distance = Math.hypot(
-      data[i] - background.r,
-      data[i + 1] - background.g,
-      data[i + 2] - background.b,
-    );
-
-    if (distance <= tolerance) {
-      data[i + 3] = 0;
-    } else if (distance <= tolerance + fade) {
-      data[i + 3] = Math.round(data[i + 3] * ((distance - tolerance) / fade));
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-}
-
-function sampleBackground(data, width, height) {
-  const points = [
-    [0, 0],
-    [width - 1, 0],
-    [0, height - 1],
-    [width - 1, height - 1],
-  ];
-  const total = points.reduce((sum, [x, y]) => {
-    const index = (y * width + x) * 4;
-    return {
-      r: sum.r + data[index],
-      g: sum.g + data[index + 1],
-      b: sum.b + data[index + 2],
-    };
-  }, { r: 0, g: 0, b: 0 });
-
-  return {
-    r: total.r / points.length,
-    g: total.g / points.length,
-    b: total.b / points.length,
   };
 }
 
@@ -640,14 +561,10 @@ function render() {
 
   const hasItems = state.items.length > 0;
   const canRunCompress = Boolean(selected);
-  const canRunRemoveBg = Boolean(selected);
   const canRunWatermark = Boolean(selected) && els.watermarkText.value.trim().length > 0;
   const canRunResize = Boolean(selected) && canProcess("resize");
 
   els.compressRunBtn.disabled = state.running || !canRunCompress;
-  els.removeBgApplyBtn.disabled = state.running || !canRunRemoveBg;
-  els.removeBgBatchBtn.disabled = state.running || !hasItems;
-  els.removeBgUndoBtn.disabled = state.running || !canUndo(selected, "remove-bg");
   els.watermarkApplyBtn.disabled = state.running || !canRunWatermark;
   els.watermarkBatchBtn.disabled = state.running || !hasItems || !canRunWatermark;
   els.watermarkUndoBtn.disabled = state.running || !canUndo(selected, "watermark");
