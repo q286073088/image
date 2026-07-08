@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>清图工具</title>
-    <link rel="stylesheet" href="./styles.css?v=20260708-nav-clean" />
+    <title>图片处理</title>
+    <link rel="stylesheet" href="./styles.css?v=20260708-compact-nav" />
   </head>
   <body>
     <main class="app">
@@ -22,7 +22,7 @@
 
       <section class="status-bar">
         <div class="totals" aria-live="polite">
-          <span><strong>不上传</strong> 图片</span>
+          <span><strong>仅本地处理</strong></span>
           <span><strong id="fileCount">0</strong> 张</span>
           <span><strong id="sizeDelta">0 KB</strong> 变化</span>
         </div>
@@ -62,6 +62,10 @@
               <label for="compressMaxEdge">最大边长</label>
               <input id="compressMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
             </div>
+
+            <div class="mode-actions">
+              <button class="primary" id="compressRunBtn" type="button" disabled>开始压缩</button>
+            </div>
           </section>
 
           <section class="mode-screen" data-screen="remove-bg">
@@ -88,6 +92,12 @@
             <div class="field">
               <label for="bgMaxEdge">最大边长</label>
               <input id="bgMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
+            </div>
+
+            <div class="mode-actions">
+              <button class="primary" id="removeBgApplyBtn" type="button" disabled>去背景当前</button>
+              <button id="removeBgBatchBtn" type="button" disabled>批量去背景</button>
+              <button id="removeBgUndoBtn" type="button" disabled>撤销当前</button>
             </div>
           </section>
 
@@ -116,6 +126,14 @@
             </div>
 
             <div class="field">
+              <label for="watermarkLayout">铺法</label>
+              <select id="watermarkLayout">
+                <option value="single">单个位置</option>
+                <option value="scatter">全屏随机</option>
+              </select>
+            </div>
+
+            <div class="field" id="watermarkPositionField">
               <label for="watermarkPosition">位置</label>
               <select id="watermarkPosition">
                 <option value="bottom-right">右下</option>
@@ -124,6 +142,11 @@
                 <option value="top-left">左上</option>
                 <option value="center">居中</option>
               </select>
+            </div>
+
+            <div class="field" id="watermarkCountField" hidden>
+              <label for="watermarkCount">随机数量</label>
+              <input id="watermarkCount" type="number" min="4" max="80" value="12" />
             </div>
 
             <div class="field">
@@ -146,50 +169,32 @@
               <label for="watermarkMaxEdge">最大边长</label>
               <input id="watermarkMaxEdge" type="number" min="256" step="128" placeholder="原尺寸" />
             </div>
+
+            <div class="mode-actions">
+              <button class="primary" id="watermarkApplyBtn" type="button" disabled>加水印当前</button>
+              <button id="watermarkBatchBtn" type="button" disabled>批量加水印</button>
+              <button id="watermarkUndoBtn" type="button" disabled>撤销当前</button>
+            </div>
           </section>
 
-          <div class="actions">
-            <button class="primary" id="previewBtn" type="button" disabled>预览效果</button>
-            <button id="applyBtn" type="button" disabled>应用当前</button>
-            <button id="batchBtn" type="button" disabled>批量应用</button>
-            <button id="undoBtn" type="button" disabled>撤销当前</button>
-          </div>
-
           <div class="actions secondary-actions">
-            <button id="downloadCurrentBtn" type="button" disabled>下载当前</button>
-            <button id="downloadAllBtn" type="button" disabled>下载 ZIP</button>
+            <button id="downloadBtn" type="button" disabled>下载结果</button>
             <button class="ghost" id="clearBtn" type="button" disabled>清空</button>
           </div>
         </aside>
 
         <section class="panel result-panel">
           <div class="panel-head">
-            <div>
-              <p class="eyebrow" id="modeEyebrow">图片压缩</p>
-              <h2 id="modeTitle">先预览，再应用</h2>
-            </div>
             <p id="batchStatus" class="status-text">等待选择图片</p>
           </div>
 
-          <div class="compare">
-            <div class="preview-card">
-              <div class="preview-label">
-                <span>当前图片</span>
-                <strong id="currentSize">0 KB</strong>
-              </div>
-              <div class="preview" id="currentPreview">
-                <div class="preview-empty">选择图片后显示</div>
-              </div>
+          <div class="preview-card preview-card-single">
+            <div class="preview-label">
+              <span id="currentName">当前图片</span>
+              <strong id="currentSize">0 KB</strong>
             </div>
-
-            <div class="preview-card">
-              <div class="preview-label">
-                <span>效果预览</span>
-                <strong id="previewSize">未生成</strong>
-              </div>
-              <div class="preview" id="effectPreview">
-                <div class="preview-empty">点击预览效果</div>
-              </div>
+            <div class="preview" id="currentPreview">
+              <div class="preview-empty">选择图片后显示</div>
             </div>
           </div>
 
@@ -198,6 +203,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=20260708-mode-screen-nav"></script>
+    <script src="./app.js?v=20260708-compact-nav"></script>
   </body>
 </html>
