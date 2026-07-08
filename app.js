@@ -3,16 +3,25 @@ const modeMeta = {
     eyebrow: "图片压缩",
     title: "调整体积与格式",
     label: "压缩",
+    previewText: "预览压缩",
+    applyText: "应用压缩",
+    batchText: "批量压缩",
   },
   "remove-bg": {
     eyebrow: "图片去背景",
     title: "保留主体，背景转透明",
     label: "去背景",
+    previewText: "预览去背景",
+    applyText: "应用去背景",
+    batchText: "批量去背景",
   },
   watermark: {
     eyebrow: "加水印",
     title: "叠加文字水印",
     label: "水印",
+    previewText: "预览水印",
+    applyText: "应用水印",
+    batchText: "批量加水印",
   },
 };
 
@@ -36,7 +45,7 @@ const els = {
   fileInput: document.querySelector("#fileInput"),
   dropzone: document.querySelector("#dropzone"),
   modeButtons: document.querySelectorAll("[data-mode]"),
-  modePanels: document.querySelectorAll("[data-panel]"),
+  modeScreens: document.querySelectorAll("[data-screen]"),
   compressFormat: document.querySelector("#compressFormat"),
   compressQuality: document.querySelector("#compressQuality"),
   compressQualityValue: document.querySelector("#compressQualityValue"),
@@ -535,9 +544,13 @@ function render() {
   els.modeButtons.forEach((button) => {
     button.classList.toggle("is-active", button.dataset.mode === state.activeMode);
   });
-  els.modePanels.forEach((panel) => {
-    panel.classList.toggle("is-active", panel.dataset.panel === state.activeMode);
+  els.modeScreens.forEach((panel) => {
+    panel.classList.toggle("is-active", panel.dataset.screen === state.activeMode);
   });
+
+  els.previewBtn.textContent = meta.previewText;
+  els.applyBtn.textContent = meta.applyText;
+  els.batchBtn.textContent = meta.batchText;
 
   const hasItems = state.items.length > 0;
   const canProcess = Boolean(selected) && canProcessActiveMode();

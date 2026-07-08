@@ -8,33 +8,46 @@
   </head>
   <body>
     <main class="app">
-      <header class="hero">
-        <div>
-          <p class="eyebrow">本地批量处理</p>
-          <h1>清图工具</h1>
-        </div>
+      <nav class="mode-nav" aria-label="图片工具">
+        <button class="mode-tab is-active" type="button" data-mode="compress">
+          <span class="mode-tab-title">图片压缩</span>
+          <span class="mode-tab-desc">缩小体积，转换格式</span>
+        </button>
+        <button class="mode-tab" type="button" data-mode="remove-bg">
+          <span class="mode-tab-title">图片去背景</span>
+          <span class="mode-tab-desc">清理纯色背景，突出主体</span>
+        </button>
+        <button class="mode-tab" type="button" data-mode="watermark">
+          <span class="mode-tab-title">加水印</span>
+          <span class="mode-tab-desc">批量叠加品牌文字标记</span>
+        </button>
+      </nav>
+
+      <section class="status-bar">
         <div class="totals" aria-live="polite">
           <span><strong>不上传</strong> 图片</span>
           <span><strong id="fileCount">0</strong> 张</span>
           <span><strong id="sizeDelta">0 KB</strong> 变化</span>
         </div>
-      </header>
-
-      <nav class="mode-nav" aria-label="图片工具">
-        <button class="is-active" type="button" data-mode="compress">图片压缩</button>
-        <button type="button" data-mode="remove-bg">图片去背景</button>
-        <button type="button" data-mode="watermark">加水印</button>
-      </nav>
+      </section>
 
       <section class="workspace">
         <aside class="panel controls">
-          <label class="dropzone" id="dropzone">
-            <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
-            <span class="drop-title">拖入图片</span>
-            <span class="drop-subtitle">或点击选择，建议单批 50 张以内</span>
-          </label>
+          <div class="asset-box">
+            <p class="asset-title">素材区</p>
+            <label class="dropzone" id="dropzone">
+              <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+              <span class="drop-title">拖入图片</span>
+              <span class="drop-subtitle">或点击选择，建议单批 50 张以内</span>
+            </label>
+          </div>
 
-          <section class="mode-panel is-active" data-panel="compress">
+          <section class="mode-screen is-active" data-screen="compress">
+            <div class="mode-screen-head">
+              <p class="eyebrow">图片压缩</p>
+              <h3>压缩设置</h3>
+              <p class="mode-screen-note">适合照片、商品图和需要控制体积的导出图。</p>
+            </div>
             <div class="field">
               <label for="compressFormat">导出格式</label>
               <select id="compressFormat">
@@ -57,7 +70,12 @@
             </div>
           </section>
 
-          <section class="mode-panel" data-panel="remove-bg">
+          <section class="mode-screen" data-screen="remove-bg">
+            <div class="mode-screen-head">
+              <p class="eyebrow">图片去背景</p>
+              <h3>主体提取</h3>
+              <p class="mode-screen-note">更适合纯色、浅色背景图；复杂背景建议先小批量试一下。</p>
+            </div>
             <div class="field">
               <label for="bgFormat">导出格式</label>
               <select id="bgFormat">
@@ -81,7 +99,12 @@
             </div>
           </section>
 
-          <section class="mode-panel" data-panel="watermark">
+          <section class="mode-screen" data-screen="watermark">
+            <div class="mode-screen-head">
+              <p class="eyebrow">加水印</p>
+              <h3>水印设置</h3>
+              <p class="mode-screen-note">适合批量加品牌名、渠道名或版权标记。</p>
+            </div>
             <div class="field">
               <label for="watermarkText">水印文字</label>
               <input id="watermarkText" type="text" maxlength="40" placeholder="例如 品牌名" />
@@ -185,6 +208,7 @@
       </section>
     </main>
 
-    <script src="./app.js?v=20260708-mode-history"></script>
+    <script src="./app.js?v=20260708-mode-screen-nav"></script>
   </body>
 </html>
+

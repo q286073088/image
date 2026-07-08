@@ -125,25 +125,70 @@ h2 {
   color: var(--ink);
 }
 
-.mode-nav {
-  gap: 8px;
+.status-bar {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 18px;
-  padding: 6px;
-  border: 1px solid var(--line);
+}
+
+.mode-nav {
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px;
+  border: 1px solid rgba(222, 217, 207, 0.9);
   border-radius: 8px;
-  background: rgba(255, 254, 250, 0.72);
+  background:
+    linear-gradient(135deg, rgba(255, 254, 250, 0.96), rgba(232, 242, 238, 0.85)),
+    rgba(255, 254, 250, 0.72);
+  box-shadow: var(--shadow);
 }
 
-.mode-nav button {
+.mode-tab {
   flex: 1;
-  background: transparent;
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  align-content: start;
+  min-height: 82px;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.42);
   color: var(--muted);
-  font-weight: 800;
+  text-align: left;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-.mode-nav button.is-active {
-  background: var(--teal);
-  color: #fff;
+.mode-tab:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(15, 118, 110, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.mode-tab.is-active {
+  border-color: rgba(15, 118, 110, 0.28);
+  background:
+    linear-gradient(135deg, rgba(15, 118, 110, 0.14), rgba(15, 118, 110, 0.04)),
+    #fff;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.08);
+}
+
+.mode-tab-title {
+  color: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.mode-tab-desc {
+  color: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  opacity: 0.82;
 }
 
 .workspace {
@@ -164,6 +209,18 @@ h2 {
   padding: 18px;
   position: sticky;
   top: 18px;
+}
+
+.asset-box {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.asset-title {
+  margin-bottom: 12px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .dropzone {
@@ -210,15 +267,33 @@ h2 {
   font-size: 14px;
 }
 
-.mode-panel {
+.mode-screen {
   display: none;
-  border-top: 1px solid var(--line);
   margin-top: 18px;
   padding-top: 2px;
 }
 
-.mode-panel.is-active {
+.mode-screen.is-active {
   display: block;
+  animation: screen-enter 0.18s ease;
+}
+
+.mode-screen-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.mode-screen-head h3 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.15;
+}
+
+.mode-screen-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .field {
@@ -466,9 +541,9 @@ input[type="color"] {
     padding: 22px 0;
   }
 
-  .hero,
   .workspace,
-  .compare {
+  .compare,
+  .status-bar {
     display: grid;
   }
 
@@ -479,10 +554,11 @@ input[type="color"] {
   }
 
   .mode-nav {
+    display: grid;
     overflow-x: auto;
   }
 
-  .mode-nav button {
+  .mode-tab {
     min-width: 112px;
   }
 
@@ -498,3 +574,16 @@ input[type="color"] {
     flex: 1;
   }
 }
+
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
