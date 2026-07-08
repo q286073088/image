@@ -253,5 +253,12 @@ pm2 delete image-tool
 
 ## 许可与说明
 
-本仓库当前未单独声明开源许可证。如需对外分发、商用或二次开发，建议补充明确的 License 文件。
+本项目采用 `MIT License`，可自由使用、修改、分发与商用。
 
+使用时请保留以下信息：
+
+- 作者：`shiys1121`
+- 原始项目地址：`https://github.com/q286073088/image`
+- License 文件中的版权与许可声明
+
+完整许可证内容见：[LICENSE](./LICENSE)
