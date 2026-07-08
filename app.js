@@ -11,6 +11,10 @@ const modeMeta = {
     label: "水印",
     undo: true,
   },
+  resize: {
+    label: "改尺寸",
+    undo: false,
+  },
 };
 
 const state = {
@@ -54,6 +58,9 @@ const els = {
   watermarkSize: document.querySelector("#watermarkSize"),
   watermarkSizeValue: document.querySelector("#watermarkSizeValue"),
   watermarkMaxEdge: document.querySelector("#watermarkMaxEdge"),
+  resizeBasis: document.querySelector("#resizeBasis"),
+  resizeValue: document.querySelector("#resizeValue"),
+  resizeHint: document.querySelector("#resizeHint"),
   compressRunBtn: document.querySelector("#compressRunBtn"),
   removeBgApplyBtn: document.querySelector("#removeBgApplyBtn"),
   removeBgBatchBtn: document.querySelector("#removeBgBatchBtn"),
@@ -61,6 +68,7 @@ const els = {
   watermarkApplyBtn: document.querySelector("#watermarkApplyBtn"),
   watermarkBatchBtn: document.querySelector("#watermarkBatchBtn"),
   watermarkUndoBtn: document.querySelector("#watermarkUndoBtn"),
+  resizeRunBtn: document.querySelector("#resizeRunBtn"),
   downloadBtn: document.querySelector("#downloadBtn"),
   clearBtn: document.querySelector("#clearBtn"),
   currentPreview: document.querySelector("#currentPreview"),
@@ -101,6 +109,8 @@ function bindEvents() {
     els.watermarkOpacity,
     els.watermarkSize,
     els.watermarkMaxEdge,
+    els.resizeBasis,
+    els.resizeValue,
   ].forEach((control) => {
     control.addEventListener("input", render);
     control.addEventListener("change", render);
@@ -139,6 +149,7 @@ function bindEvents() {
   els.watermarkApplyBtn.addEventListener("click", () => applySelected("watermark"));
   els.watermarkBatchBtn.addEventListener("click", () => batchApply("watermark"));
   els.watermarkUndoBtn.addEventListener("click", () => undoSelected("watermark"));
+  els.resizeRunBtn.addEventListener("click", () => runMode("resize"));
   els.downloadBtn.addEventListener("click", downloadResult);
   els.clearBtn.addEventListener("click", clearAll);
 
@@ -194,17 +205,20 @@ function addFiles(files) {
       size: file.size,
       label: "原图",
       mime: mimeFromFile(file),
+      width: 0,
+      height: 0,
     }],
   }));
 
   state.items.push(...entries);
+  entries.forEach(populateVersionDimensions);
   if (!state.selectedId && entries[0]) state.selectedId = entries[0].id;
   render();
 }
 
 function isSupportedImageFile(file) {
   if (!file) return false;
-  if (file.type.startsWith("image/")) return true;
+  if (file.type?.startsWith("image/")) return true;
   return Boolean(extensionForFileName(file.name));
 }
 
@@ -225,6 +239,20 @@ function extensionForFileName(name) {
   const match = name.toLowerCase().match(/\.([a-z0-9]+)$/);
   if (!match) return "";
   return match[1];
+}
+
+async function populateVersionDimensions(item) {
+  const version = currentVersion(item);
+  if (!version || (version.width && version.height)) return;
+
+  try {
+    const image = await loadImage(version.blob);
+    version.width = image.width;
+    version.height = image.height;
+    render();
+  } catch {
+    // Ignore dimension hydration failures; processing can still continue.
+  }
 }
 
 async function applySelected(mode) {
@@ -295,13 +323,17 @@ function pushVersion(item, result) {
     size: result.blob.size,
     label: result.label,
     mime: result.blob.type,
+    width: result.width,
+    height: result.height,
   });
 }
 
 async function processVersion(version, mode) {
   const settings = readSettings(mode, version);
   const image = await loadImage(version.blob);
-  const { width, height } = scaledSize(image.width, image.height, settings.maxEdge);
+  const { width, height } = mode === "resize"
+    ? resizedSize(image.width, image.height, settings)
+    : scaledSize(image.width, image.height, settings.maxEdge);
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d", { alpha: true });
 
@@ -326,6 +358,8 @@ async function processVersion(version, mode) {
     blob,
     name: renameFile(version.name, settings.mime),
     label: modeMeta[mode].label,
+    width,
+    height,
   };
 }
 
@@ -344,6 +378,15 @@ function readSettings(mode, version) {
       quality: 0.92,
       maxEdge: numberOrEmpty(els.bgMaxEdge.value),
       tolerance: Number(els.bgTolerance.value),
+    };
+  }
+
+  if (mode === "resize") {
+    return {
+      mime: version.mime || "image/png",
+      quality: 0.92,
+      targetBy: els.resizeBasis.value,
+      targetValue: Number.parseInt(els.resizeValue.value, 10),
     };
   }
 
@@ -366,6 +409,10 @@ function readSettings(mode, version) {
 }
 
 function canProcess(mode) {
+  if (mode === "resize") {
+    return Number.isFinite(Number.parseInt(els.resizeValue.value, 10))
+      && Number.parseInt(els.resizeValue.value, 10) > 0;
+  }
   return mode !== "watermark" || els.watermarkText.value.trim().length > 0;
 }
 
@@ -380,6 +427,22 @@ function scaledSize(width, height, maxEdge) {
   const scale = Number.isFinite(maxEdge) && maxEdge > 0
     ? Math.min(1, maxEdge / Math.max(width, height))
     : 1;
+
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
+function resizedSize(width, height, settings) {
+  const targetValue = settings.targetValue;
+  if (!Number.isFinite(targetValue) || targetValue <= 0) {
+    throw new Error("请填写目标尺寸");
+  }
+
+  const scale = settings.targetBy === "height"
+    ? targetValue / height
+    : targetValue / width;
 
   return {
     width: Math.max(1, Math.round(width * scale)),
@@ -579,6 +642,7 @@ function render() {
   const canRunCompress = Boolean(selected);
   const canRunRemoveBg = Boolean(selected);
   const canRunWatermark = Boolean(selected) && els.watermarkText.value.trim().length > 0;
+  const canRunResize = Boolean(selected) && canProcess("resize");
 
   els.compressRunBtn.disabled = state.running || !canRunCompress;
   els.removeBgApplyBtn.disabled = state.running || !canRunRemoveBg;
@@ -587,8 +651,11 @@ function render() {
   els.watermarkApplyBtn.disabled = state.running || !canRunWatermark;
   els.watermarkBatchBtn.disabled = state.running || !hasItems || !canRunWatermark;
   els.watermarkUndoBtn.disabled = state.running || !canUndo(selected, "watermark");
+  els.resizeRunBtn.disabled = state.running || !canRunResize;
   els.downloadBtn.disabled = state.running || !hasItems;
   els.clearBtn.disabled = state.running || !hasItems;
+
+  els.resizeHint.textContent = resizeHint(selected);
 
   els.currentPreview.innerHTML = current
     ? `<img src="${current.url}" alt="${escapeHtml(current.name)}">`
@@ -642,6 +709,26 @@ function batchStatus(doneCount) {
   if (state.items.length === 0) return "等待选择图片";
   if (doneCount > 0) return `已处理 ${doneCount}/${state.items.length}`;
   return "已导入，待处理";
+}
+
+function resizeHint(item) {
+  if (!item) return "选择图片后显示等比输出尺寸";
+
+  const version = currentVersion(item);
+  if (!version?.width || !version?.height) {
+    return "正在读取当前图片尺寸";
+  }
+
+  const targetValue = Number.parseInt(els.resizeValue.value, 10);
+  if (!Number.isFinite(targetValue) || targetValue <= 0) {
+    return `当前图片 ${version.width} × ${version.height}`;
+  }
+
+  const next = resizedSize(version.width, version.height, {
+    targetBy: els.resizeBasis.value,
+    targetValue,
+  });
+  return `当前图片 ${version.width} × ${version.height} -> ${next.width} × ${next.height}`;
 }
 
 function setItemStatus(item, status, error = "") {

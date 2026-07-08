@@ -286,6 +286,13 @@ p {
   font-weight: 800;
 }
 
+.field-note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .field-row {
   justify-content: space-between;
 }

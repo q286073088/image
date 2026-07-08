@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>图片处理</title>
-    <link rel="stylesheet" href="./styles.css?v=20260708-dragdrop-fix" />
+    <link rel="stylesheet" href="./styles.css?v=20260708-resize-mode" />
   </head>
   <body>
     <main class="app">
@@ -17,6 +17,9 @@
         </button>
         <button class="mode-tab" type="button" data-mode="watermark">
           <span class="mode-tab-title">加水印</span>
+        </button>
+        <button class="mode-tab" type="button" data-mode="resize">
+          <span class="mode-tab-title">改尺寸</span>
         </button>
       </nav>
 
@@ -177,6 +180,30 @@
             </div>
           </section>
 
+          <section class="mode-screen" data-screen="resize">
+            <div class="mode-screen-head">
+              <h3>尺寸设置</h3>
+            </div>
+            <div class="field">
+              <label for="resizeBasis">调整方式</label>
+              <select id="resizeBasis">
+                <option value="width">按宽度</option>
+                <option value="height">按高度</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="resizeValue">目标像素</label>
+              <input id="resizeValue" type="number" min="1" step="10" placeholder="例如 1200" />
+            </div>
+
+            <div class="field-note" id="resizeHint">选择图片后显示等比输出尺寸</div>
+
+            <div class="mode-actions">
+              <button class="primary" id="resizeRunBtn" type="button" disabled>开始调整</button>
+            </div>
+          </section>
+
           <div class="actions secondary-actions">
             <button id="downloadBtn" type="button" disabled>下载结果</button>
             <button class="ghost" id="clearBtn" type="button" disabled>清空</button>
@@ -203,6 +230,6 @@
       </section>
     </main>
 
-    <script src="./app.js?v=20260708-dragdrop-fix"></script>
+    <script src="./app.js?v=20260708-resize-mode"></script>
   </body>
 </html>
