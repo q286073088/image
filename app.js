@@ -180,7 +180,7 @@ function syncWatermarkFields() {
 }
 
 function addFiles(files) {
-  const images = files.filter((file) => file.type.startsWith("image/"));
+  const images = files.filter(isSupportedImageFile);
   const entries = images.map((file) => ({
     id: crypto.randomUUID(),
     originalName: file.name,
@@ -193,13 +193,38 @@ function addFiles(files) {
       name: file.name,
       size: file.size,
       label: "原图",
-      mime: file.type || "image/png",
+      mime: mimeFromFile(file),
     }],
   }));
 
   state.items.push(...entries);
   if (!state.selectedId && entries[0]) state.selectedId = entries[0].id;
   render();
+}
+
+function isSupportedImageFile(file) {
+  if (!file) return false;
+  if (file.type.startsWith("image/")) return true;
+  return Boolean(extensionForFileName(file.name));
+}
+
+function mimeFromFile(file) {
+  if (file?.type?.startsWith("image/")) return file.type;
+
+  const extension = extensionForFileName(file?.name || "");
+  const map = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+  };
+  return map[extension] || "image/png";
+}
+
+function extensionForFileName(name) {
+  const match = name.toLowerCase().match(/\.([a-z0-9]+)$/);
+  if (!match) return "";
+  return match[1];
 }
 
 async function applySelected(mode) {

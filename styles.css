@@ -140,13 +140,19 @@ p {
 }
 
 .mode-tab:hover:not(:disabled) {
-  border-color: rgba(15, 118, 110, 0.18);
-  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(15, 118, 110, 0.3);
+  background: rgba(226, 240, 236, 0.96);
+  color: var(--ink);
 }
 
 .mode-tab.is-active {
   border-color: rgba(15, 118, 110, 0.18);
   background: var(--ink);
+  color: #fff;
+}
+
+.mode-tab.is-active:hover:not(:disabled) {
+  background: #26302d;
   color: #fff;
 }
 
